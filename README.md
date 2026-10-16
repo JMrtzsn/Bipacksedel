@@ -1,6 +1,9 @@
-# drug-label-mcp
+# Bipacksedel
 
-Grounded semantic retrieval over public FDA neurology and psychiatry drug labels.
+A self-contained RAG learning project. It builds retrieval end to end — chunk,
+embed, vector search, cited evidence — over public FDA neurology and psychiatry
+drug labels, and measures retrieval quality with its own eval harness. Nothing
+more: one pipeline, one corpus, one set of evals.
 
 ```text
 openFDA -> cached JSON -> section/fixed chunks -> embeddings -> PostgreSQL/pgvector
@@ -17,16 +20,16 @@ See [`docs/rag.md`](docs/rag.md) for the retrieval-augmented generation concepts
 ```sh
 uv sync
 docker compose up -d
-uv run python -m drug_label_mcp.ingest
+uv run python -m bipacksedel.ingest
 uv run python evals/run.py
 ```
 
 No credentials are required. The local `BAAI/bge-small-en-v1.5` model downloads on first use.
 
-Run the stdio server with `uv run python -m drug_label_mcp.server`. An MCP client configuration should use command `uv` and arguments `run`, `python`, `-m`, `drug_label_mcp.server`, with this directory as its working directory. Inspect it directly:
+Run the stdio server with `uv run python -m bipacksedel.server`. An MCP client configuration should use command `uv` and arguments `run`, `python`, `-m`, `bipacksedel.server`, with this directory as its working directory. Inspect it directly:
 
 ```sh
-npx @modelcontextprotocol/inspector --cli uv run python -m drug_label_mcp.server --method tools/list
+npx @modelcontextprotocol/inspector --cli uv run python -m bipacksedel.server --method tools/list
 ```
 
 ## Evaluation results
@@ -45,9 +48,3 @@ npx @modelcontextprotocol/inspector --cli uv run python -m drug_label_mcp.server
 
 *Exact section metrics require section metadata and are a section-aware capability; content metrics are comparable across both chunking strategies. Threshold-off rows show N/A because they cannot express refusal.
 <!-- RESULTS_END -->
-
-## Next steps
-
-- Add reranking when measured precision warrants its latency.
-- Add hybrid BM25 when semantic retrieval misses exact terminology.
-- Add an LLM judge for answer faithfulness when answer generation enters scope.

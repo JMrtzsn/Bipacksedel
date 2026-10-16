@@ -1,4 +1,4 @@
-from drug_label_mcp.chunk import chunk_label
+from bipacksedel.chunk import chunk_label
 
 LABEL = {
     "id": "label-1",

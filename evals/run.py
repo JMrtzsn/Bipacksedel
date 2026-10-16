@@ -6,7 +6,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 
-from drug_label_mcp.store import is_supported, search, similarity_threshold  # noqa: E402
+from bipacksedel.store import is_supported, search, similarity_threshold  # noqa: E402
 
 
 def calculate_metrics(

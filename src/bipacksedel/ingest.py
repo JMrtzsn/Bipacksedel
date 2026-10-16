@@ -7,9 +7,9 @@ import urllib.request
 from collections import Counter
 from pathlib import Path
 
-from drug_label_mcp.chunk import chunk_label
-from drug_label_mcp.embed import embed_texts
-from drug_label_mcp.store import connect, create_schema, upsert_chunks
+from bipacksedel.chunk import chunk_label
+from bipacksedel.embed import embed_texts
+from bipacksedel.store import connect, create_schema, upsert_chunks
 
 DRUGS = [
     "levetiracetam",

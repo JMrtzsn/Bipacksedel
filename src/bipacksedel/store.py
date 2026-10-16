@@ -2,7 +2,7 @@ import psycopg
 from pgvector import Vector
 from pgvector.psycopg import register_vector
 
-from drug_label_mcp.embed import EMBED_DIM, embed_texts
+from bipacksedel.embed import EMBED_DIM, embed_texts
 
 DATABASE_DSN = "postgresql://postgres:postgres@localhost:5432/druglabels"
 similarity_threshold = 0.7

@@ -39,7 +39,7 @@ RAG is only as good as its corpus. Here the corpus is ~50 public FDA drug
 labels for neurology/psychiatry drugs, fetched from the openFDA drug label API.
 
 - Fetch once and **cache raw source** (`data/raw/*.json`) so re-ingestion is
-  reproducible and offline — see `fetch_label` in `src/drug_label_mcp/ingest.py`.
+  reproducible and offline — see `fetch_label` in `src/bipacksedel/ingest.py`.
 - `limit=1` takes one representative label per drug name; missing labels (HTTP
   404) are skipped, not treated as errors.
 - Ingestion is **idempotent**: chunks are upserted by a deterministic
@@ -71,7 +71,7 @@ that straddles a cut is still fully present in at least one chunk.
 
 Every chunk carries metadata — `chunk_id`, `drug_name`, `label_id`, `section`,
 `text` — which enables filtering and citations. Implementation:
-`chunk_label` in `src/drug_label_mcp/chunk.py`.
+`chunk_label` in `src/bipacksedel/chunk.py`.
 
 ## 3. Embeddings
 
@@ -85,7 +85,7 @@ term matching.
   it cannot attend from query to document). Re-rankers (see below) use a
   **cross-encoder** that does, at higher cost.
 - **Dimension** is fixed by the model: here `BAAI/bge-small-en-v1.5` yields
-  **384**-dimensional vectors (`EMBED_DIM` in `src/drug_label_mcp/embed.py`).
+  **384**-dimensional vectors (`EMBED_DIM` in `src/bipacksedel/embed.py`).
 - Embedded vectors are stored in the same space at ingest and query time, so
   changing embedding models requires re-ingesting everything.
 
@@ -98,7 +98,7 @@ Retrieval ranks stored chunks by **similarity** to the query vector.
 
 - **Metric:** cosine similarity is standard for text embeddings. pgvector
   exposes cosine *distance*; this repo converts it back to a similarity score
-  with `1 - (embedding <=> query)` (`search` in `src/drug_label_mcp/store.py`).
+  with `1 - (embedding <=> query)` (`search` in `src/bipacksedel/store.py`).
 - **Index:** an approximate-nearest-neighbor (ANN) index makes top-k search
   fast over large corpora. **HNSW** is the modern default (no training step,
   good recall/latency); the schema creates
@@ -108,7 +108,7 @@ Retrieval ranks stored chunks by **similarity** to the query vector.
   exactly; HNSW is what makes the same code scale.
 
 Storage is Postgres + pgvector (`label_chunks`, `create_schema`, `upsert_chunks`
-in `src/drug_label_mcp/store.py`).
+in `src/bipacksedel/store.py`).
 
 ## 5. Retrieval controls
 
@@ -121,7 +121,7 @@ Three knobs turn raw nearest-neighbor search into usable evidence:
 - **Similarity threshold** — if the best score is below a cutoff, there is
   **no supporting evidence** and the system should refuse rather than let the
   model hallucinate. This is the `supported` flag
-  (`is_supported` in `src/drug_label_mcp/store.py`), default threshold `0.7`.
+  (`is_supported` in `src/bipacksedel/store.py`), default threshold `0.7`.
 
 ### Grounding and refusal
 
@@ -129,7 +129,7 @@ Grounding means answers must be backed by retrieved text and **cite** it.
 Refusal means saying "not found in labels" when `supported` is false. Both are
 prompt/contract concerns: the MCP tool docstrings tell the client to cite
 returned `chunk_id`s and to reply exactly `"not found in labels"` when
-`supported` is false (`src/drug_label_mcp/server.py`). A retriever without a
+`supported` is false (`src/bipacksedel/server.py`). A retriever without a
 refusal path will answer confidently from irrelevant chunks.
 
 ## 6. Why MCP here
@@ -168,21 +168,9 @@ Metrics (retrieval):
 The eval harness calls the retrieval function **directly** — no LLM — so it is
 cheap, fast, and repeatable. A comparison matrix varies chunking strategy,
 `k`, and threshold on/off, and writes a deterministic Markdown table into the
-README. LLM-judged answer faithfulness (citation accuracy) is the natural next
-step once generation is in scope.
+README.
 
-## 8. Common RAG failure modes and upgrades
-
-- **Semantic-only misses exact terms** (drug codes, rare strings) → add **hybrid
-  BM25** lexical retrieval and fuse with vectors.
-- **Bi-encoder ranks loosely** → add a **cross-encoder reranker** over the top-N
-  candidates (better precision, more latency).
-- **Context dilution** → tune chunk size, `k`, and add metadata filters.
-- **Hallucination when evidence is absent** → similarity threshold + refusal
-  contract, plus an **LLM judge** for faithfulness.
-- **Stale corpus** → re-ingest; vector spaces must match the current model.
-
-## 9. How this repository maps the concepts
+## 8. How this repository maps the concepts
 
 | Concept | Where |
 |---|---|

@@ -1,7 +1,7 @@
 import pytest
 
-from drug_label_mcp import store
-from drug_label_mcp.store import is_supported
+from bipacksedel import store
+from bipacksedel.store import is_supported
 
 
 def test_database_dsn_is_the_compose_database():
@@ -17,7 +17,7 @@ def test_supported_flips_around_threshold():
 @pytest.mark.integration
 def test_database_schema_can_be_created():
     psycopg = pytest.importorskip("psycopg")
-    from drug_label_mcp.store import connect, create_schema
+    from bipacksedel.store import connect, create_schema
 
     try:
         with connect() as connection:

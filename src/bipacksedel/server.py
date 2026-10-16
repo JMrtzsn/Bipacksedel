@@ -1,6 +1,6 @@
 from mcp.server import MCPServer
 
-from drug_label_mcp import store
+from bipacksedel import store
 
 mcp = MCPServer("drug-label-mcp")
 
