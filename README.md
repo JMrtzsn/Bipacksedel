@@ -1,17 +1,15 @@
 # Bipacksedel
 
-A self-contained RAG learning project. It builds retrieval end to end — chunk,
-embed, vector search, cited evidence — over public FDA neurology and psychiatry
+A self-contained RAG learning project. It builds retrieval end to end (chunk,
+embed, vector search, cited evidence) over public FDA neurology and psychiatry
 drug labels, and measures retrieval quality with its own eval harness. Nothing
 more: one pipeline, one corpus, one set of evals.
 
 ```text
-openFDA -> cached JSON -> section/fixed chunks -> embeddings -> PostgreSQL/pgvector
-                                                               ^
-LLM client <---------------- MCP tools -------------------------+
+openFDA -> cached JSON -> chunks -> embeddings -> pgvector
+                                                     ^
+LLM client <-------------- MCP tools ----------------+
 ```
-
-This is a demonstration over public FDA labels, not medical advice. It is not a substitute for a clinician or the current official prescribing information.
 
 See [`docs/rag.md`](docs/rag.md) for the retrieval-augmented generation concepts behind this pipeline and how each maps to the code.
 

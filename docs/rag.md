@@ -13,11 +13,11 @@ one lives in this repository.
 
 ```text
                  OFFLINE (ingest)                         ONLINE (per query)
-user question ──► embed(query) ──► vector search ──► top-k chunks ──► LLM answers
-                                          ▲                                ▲
-                                          │                                │
-   source ──► chunk ──► embed ──► vector index                            cites chunk_ids
-  (openFDA    (split)   (vectors)  (pgvector)
+user question --> embed(query) --> vector search --> top-k chunks --> LLM answers
+                                        ^                                  ^
+                                        |                                  |
+   source --> chunk --> embed --> vector index                          cites chunk_ids
+  (openFDA   (split)  (vectors) (pgvector)
    labels)
 ```
 
@@ -39,7 +39,7 @@ RAG is only as good as its corpus. Here the corpus is ~50 public FDA drug
 labels for neurology/psychiatry drugs, fetched from the openFDA drug label API.
 
 - Fetch once and **cache raw source** (`data/raw/*.json`) so re-ingestion is
-  reproducible and offline — see `fetch_label` in `src/bipacksedel/ingest.py`.
+  reproducible and offline (see `fetch_label` in `src/bipacksedel/ingest.py`).
 - `limit=1` takes one representative label per drug name; missing labels (HTTP
   404) are skipped, not treated as errors.
 - Ingestion is **idempotent**: chunks are upserted by a deterministic
@@ -60,30 +60,29 @@ with 200 chars of overlap). Simple and uniform, but it cuts across document
 structure and loses section boundaries.
 
 **Section-aware (structure-aware) chunking** splits on the document's own
-units — here, the label's regulatory sections
-(`indications_and_usage`, `dosage_and_administration`, `warnings`,
-`contraindications`, `adverse_reactions`, `drug_interactions`). Long sections
-are still windowed with overlap. This keeps each chunk semantically coherent
-and preserves metadata that a query can filter on.
+units, the label's regulatory sections (`indications_and_usage`,
+`dosage_and_administration`, `warnings`, `contraindications`,
+`adverse_reactions`, `drug_interactions`). Long sections are still windowed
+with overlap. This keeps each chunk semantically coherent and preserves
+metadata that a query can filter on.
 
 **Overlap** repeats the boundary text between adjacent windows so an answer
 that straddles a cut is still fully present in at least one chunk.
 
-Every chunk carries metadata — `chunk_id`, `drug_name`, `label_id`, `section`,
-`text` — which enables filtering and citations. Implementation:
-`chunk_label` in `src/bipacksedel/chunk.py`.
+Every chunk carries metadata (`chunk_id`, `drug_name`, `label_id`, `section`,
+`text`), which enables filtering and citations. Implementation: `chunk_label`
+in `src/bipacksedel/chunk.py`.
 
 ## 3. Embeddings
 
 An **embedding** maps text to a fixed-length vector such that semantically
 similar texts are close in vector space. The model is trained so that
 "contraindicated in pregnancy" lands near other phrases about pregnancy risk,
-even without shared keywords — this is what lets retrieval work beyond literal
-term matching.
+even without shared keywords, which lets retrieval work beyond literal term
+matching.
 
-- A **bi-encoder** embeds the query and the document independently (fast, but
-  it cannot attend from query to document). Re-rankers (see below) use a
-  **cross-encoder** that does, at higher cost.
+- A **bi-encoder** embeds the query and the document independently. It is fast
+  and it is what this project uses.
 - **Dimension** is fixed by the model: here `BAAI/bge-small-en-v1.5` yields
   **384**-dimensional vectors (`EMBED_DIM` in `src/bipacksedel/embed.py`).
 - Embedded vectors are stored in the same space at ingest and query time, so
@@ -114,11 +113,11 @@ in `src/bipacksedel/store.py`).
 
 Three knobs turn raw nearest-neighbor search into usable evidence:
 
-- **top-k** — how many chunks to return. Small `k` risks missing the answer;
+- **top-k**: how many chunks to return. Small `k` risks missing the answer;
   large `k` adds distractors and tokens.
-- **Metadata filters** — restrict by field, e.g. `drug_name`, to cut the search
+- **Metadata filters**: restrict by field, e.g. `drug_name`, to cut the search
   space and prevent cross-drug confusion. See the optional `drug` filter.
-- **Similarity threshold** — if the best score is below a cutoff, there is
+- **Similarity threshold**: if the best score is below a cutoff, there is
   **no supporting evidence** and the system should refuse rather than let the
   model hallucinate. This is the `supported` flag
   (`is_supported` in `src/bipacksedel/store.py`), default threshold `0.7`.
@@ -142,31 +141,31 @@ can be evaluated **without** invoking any LLM.
 
 ## 7. Evaluating RAG
 
-RAG has two failure axes — bad retrieval and bad generation — and they must be
+RAG has two failure axes, bad retrieval and bad generation, and they must be
 measured separately. This repo measures **retrieval**, which is where most RAG
 quality is decided, using `evals/questions.jsonl` and `evals/run.py`.
 
 Metrics (retrieval):
 
-- **recall@k** — fraction of answerable questions whose expected evidence is in
+- **recall@k**: fraction of answerable questions whose expected evidence is in
   the top-k. Measures "did we fetch the answer at all?"
-- **MRR** (mean reciprocal rank) — averages `1/rank` of the first relevant
+- **MRR** (mean reciprocal rank): averages `1/rank` of the first relevant
   result. Rewards ranking the answer near the top.
-- **Content relevance** — a hit when a top-k chunk is from the expected drug
+- **Content relevance**: a hit when a top-k chunk is from the expected drug
   **and contains the expected answer text** (`key_phrases`). Comparable across
   chunking strategies, since it does not require section metadata.
-- **Exact-section recall** — a hit only when the expected *section* is present.
+- **Exact-section recall**: a hit only when the expected *section* is present.
   This isolates a capability only structure-aware chunking can express; fixed
   chunking discards the section label by design.
-- **Refusal accuracy** — fraction of unanswerable questions correctly refused
+- **Refusal accuracy**: fraction of unanswerable questions correctly refused
   (`supported == false`). Without it, a system that always answers looks good.
-- **False-refusal rate** — fraction of answerable questions wrongly refused;
+- **False-refusal rate**: fraction of answerable questions wrongly refused;
   the cost of a threshold set too high. Reported together with refusal accuracy
   so the threshold is a trade-off, not a free win.
-- **Latency** — per-query wall-clock (printed, not committed, since it varies).
+- **Latency**: per-query wall-clock (printed, not committed, since it varies).
 
-The eval harness calls the retrieval function **directly** — no LLM — so it is
-cheap, fast, and repeatable. A comparison matrix varies chunking strategy,
+The eval harness calls the retrieval function **directly**, with no LLM, so it
+is cheap, fast, and repeatable. A comparison matrix varies chunking strategy,
 `k`, and threshold on/off, and writes a deterministic Markdown table into the
 README.
 
