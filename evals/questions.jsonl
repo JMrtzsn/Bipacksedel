@@ -1,0 +1,20 @@
+{"question":"What is levetiracetam indicated for?","expected_drug":"levetiracetam","expected_section":"indications_and_usage","key_phrases":["partial-onset seizures","juvenile myoclonic epilepsy"],"answerable":true}
+{"question":"What warnings apply to lamotrigine?","expected_drug":"lamotrigine","expected_section":"warnings","key_phrases":["Life-threatening serious rash","Discontinue at the first sign of rash"],"answerable":true}
+{"question":"How should carbamazepine be dosed?","expected_drug":"carbamazepine","expected_section":"dosage_and_administration","key_phrases":["Carbamazepine suspension","DOSAGE AND ADMINISTRATION"],"answerable":true}
+{"question":"What are phenytoin adverse reactions?","expected_drug":"phenytoin","expected_section":"adverse_reactions","key_phrases":["Cardiovascular Risk Associated with Rapid Infusion","ADVERSE REACTIONS"],"answerable":true}
+{"question":"When is gabapentin contraindicated?","expected_drug":"gabapentin","expected_section":"contraindications","key_phrases":["hypersensitivity to the drug or its ingredients","Known hypersensitivity to gabapentin"],"answerable":true}
+{"question":"Which drugs interact with pregabalin?","expected_drug":"pregabalin","expected_section":"drug_interactions","key_phrases":["predominantly excreted unchanged in the urine","negligible metabolism in humans"],"answerable":true}
+{"question":"What is topiramate used to treat?","expected_drug":"topiramate","expected_section":"indications_and_usage","key_phrases":["partial-onset or primary generalized tonic-clonic seizures","Epilepsy"],"answerable":true}
+{"question":"What warnings apply to sertraline?","expected_drug":"sertraline","expected_section":"warnings","key_phrases":["Clinical Worsening and Suicide Risk","major depressive disorder"],"answerable":true}
+{"question":"How should fluoxetine be administered?","expected_drug":"fluoxetine","expected_section":"dosage_and_administration","key_phrases":["20 mg/day in am","DOSAGE AND ADMINISTRATION"],"answerable":true}
+{"question":"What adverse reactions can escitalopram cause?","expected_drug":"escitalopram","expected_section":"adverse_reactions","key_phrases":["Suicidal thoughts and behaviors","ADVERSE REACTIONS"],"answerable":true}
+{"question":"When is duloxetine contraindicated?","expected_drug":"duloxetine","expected_section":"contraindications","key_phrases":["use of MAOIs","within 5 days of stopping treatment"],"answerable":true}
+{"question":"What drugs interact with bupropion?","expected_drug":"bupropion","expected_section":"drug_interactions","key_phrases":["CYP2B6 inducers","ritonavir, lopinavir, efavirenz"],"answerable":true}
+{"question":"What is quetiapine indicated for?","expected_drug":"quetiapine","expected_section":"indications_and_usage","key_phrases":["atypical antipsychotic","Bipolar I disorder manic episodes"],"answerable":true}
+{"question":"What warnings apply to clozapine?","expected_drug":"clozapine","expected_section":"warnings","key_phrases":["Severe neutropenia","Gastrointestinal Hypomotility"],"answerable":true}
+{"question":"How is donepezil dosed?","expected_drug":"donepezil","expected_section":"dosage_and_administration","key_phrases":["5 mg to 10 mg once daily","10 mg to 23 mg once daily"],"answerable":true}
+{"question":"What adverse reactions are reported for sumatriptan?","expected_drug":"sumatriptan","expected_section":"adverse_reactions","key_phrases":["Myocardial ischemia","Prinzmetal’s angina"],"answerable":true}
+{"question":"What is the best antibiotic for pneumonia?","expected_drug":null,"expected_section":null,"answerable":false}
+{"question":"How do I perform emergency heart surgery?","expected_drug":null,"expected_section":null,"answerable":false}
+{"question":"What are tomorrow's lottery numbers?","expected_drug":null,"expected_section":null,"answerable":false}
+{"question":"Which drugs interact with levetiracetam?","expected_drug":"levetiracetam","expected_section":"drug_interactions","answerable":false}
