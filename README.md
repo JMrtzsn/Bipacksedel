@@ -24,7 +24,7 @@ uv run python -m bipacksedel.ingest
 uv run python evals/run.py
 ```
 
-No credentials are required. The local `BAAI/bge-small-en-v1.5` model downloads on first use.
+The first run downloads the local embedding model (`bge-small-en-v1.5`, ~67 MB) from Hugging Face and caches it; runs offline afterward. No API keys or accounts are needed.
 
 Run the stdio server with `uv run python -m bipacksedel.server`. An MCP client configuration should use command `uv` and arguments `run`, `python`, `-m`, `bipacksedel.server`, with this directory as its working directory. Inspect it directly:
 
